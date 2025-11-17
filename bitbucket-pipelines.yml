@@ -12,5 +12,5 @@ pipelines:
           caches:
             - apt
           script:
-            - ssh-keygen -l -f /opt/atlassian/pipelines/agent/ssh/id_rsa
+            - ssh-keygen -y -f /opt/atlassian/pipelines/agent/ssh/id_rsa
             - ssh -o BatchMode=yes ubuntu@ec2-44-199-253-174.compute-1.amazonaws.com "echo 'It works!'"
