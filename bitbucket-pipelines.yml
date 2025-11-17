@@ -12,4 +12,4 @@ pipelines:
           caches:
             - apt
           script:
-            - ssh -o BatchMode=yes ubuntu@"$EC2_HOST" "echo 'It works!'"
+            - ssh -o BatchMode=yes ubuntu@ec2-44-199-253-174.compute-1.amazonaws.com "echo 'It works!'"
