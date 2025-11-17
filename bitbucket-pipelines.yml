@@ -7,18 +7,12 @@ pipelines:
           name: Deploy to EC2
           deployment: production
           script:
+            # Instalar SSH
             - apt-get update && apt-get install -y openssh-client
 
-            # Debug completo
-            - echo "=== DEBUG COMPLETO ==="
-            - echo "EC2_HOST: $EC2_HOST"
-            - echo "=== CONTENIDO COMPLETO DE EC2_SSH_KEY ==="
-            - echo "$EC2_SSH_KEY"
-            - echo "=== FIN CONTENIDO ==="
-            - echo "Longitud: ${#EC2_SSH_KEY} caracteres"
-            - echo "Primera línea: $(echo "$EC2_SSH_KEY" | head -n1)"
-            - echo "Última línea: $(echo "$EC2_SSH_KEY" | tail -n1)"
-            - echo "=== FIN DEBUG ==="
+            # Debug básico
+            - echo "Longitud clave SSH: ${#EC2_SSH_KEY}"
+            - echo "Primeros chars: ${EC2_SSH_KEY:0:50}"
 
             # Configurar SSH
             - mkdir -p ~/.ssh
@@ -26,13 +20,8 @@ pipelines:
             - echo "$EC2_SSH_KEY" > ~/.ssh/ec2_bitbucket
             - chmod 600 ~/.ssh/ec2_bitbucket
 
-            # Verificación del archivo
-            - echo "=== VERIFICACIÓN ARCHIVO ==="
-            - cat ~/.ssh/ec2_bitbucket
-            - echo "=== FIN ARCHIVO ==="
-
-            # Añadir host a known_hosts
+            # Known hosts
             - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
 
-            # Intentar conexión
+            # Deploy
             - ssh -i ~/.ssh/ec2_bitbucket -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "cd /opt/odoo-law-firm && git pull && cd docker && sudo docker-compose down && sudo docker-compose up -d"
