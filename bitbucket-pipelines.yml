@@ -13,7 +13,7 @@ pipelines:
           caches:
             - apt
           script:
-            - - export SSH_ASKPASS=
+            - export SSH_ASKPASS=
             - export DISPLAY=:0
 
             - # Remove any existing known_hosts to avoid conflicts
