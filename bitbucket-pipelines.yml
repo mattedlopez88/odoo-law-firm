@@ -13,26 +13,5 @@ pipelines:
           caches:
             - apt
           script:
-            - export SSH_ASKPASS=
-            - export DISPLAY=
-            - apt-get update && apt-get install -y openssh-client
-
-            # Configurar SSH
-            - mkdir -p ~/.ssh
-            - chmod 700 ~/.ssh
-
-            - ls -lah ~/.ssh
-            - cat ~/.ssh/known_hosts
-            - ssh-keygen -y -f /opt/atlassian/pipelines/agent/ssh/id_rsa
-            - ls -la /opt/atlassian/pipelines/agent/ssh
-            - cat /opt/atlassian/pipelines/agent/ssh/id_rsa
-            - cat ~/.ssh/config
-
-            # Añadir la clave del host de forma segura a known_hosts
             - ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
-
-            - ssh -o BatchMode=yes -o StrictHostKeyChecking=no ubuntu@"$EC2_HOST" "echo 'SSH connection successful'"
-
-            # Deploy (sin StrictHostKeyChecking=no para mayor seguridad)
-            - ssh o BatchMode=yes ubuntu@"$EC2_HOST" \
-                "cd /opt/odoo-law-firm && git pull && cd docker && sudo docker-compose down && sudo docker-compose up -d"
+            - ssh ubuntu@"$EC2_HOST" "echo 'Hello from Bitbucket!'"
