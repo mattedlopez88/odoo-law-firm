@@ -22,7 +22,7 @@ pipelines:
             - chmod 700 ~/.ssh
 
             - ls -lah ~/.ssh
-            - ls -lah opt/atlassian/pipelines/agent/ssh
+            - ls -la /opt/atlassian/pipelines/agent/ssh
             - cat ~/.ssh/config
 
             # Añadir la clave del host de forma segura a known_hosts
