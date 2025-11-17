@@ -9,6 +9,7 @@ pipelines:
           script:
             - apt-get update && apt-get install -y openssh-client
 
+            # Debug completo
             - echo "=== DEBUG COMPLETO ==="
             - echo "EC2_HOST: $EC2_HOST"
             - echo "=== CONTENIDO COMPLETO DE EC2_SSH_KEY ==="
@@ -19,19 +20,19 @@ pipelines:
             - echo "Última línea: $(echo "$EC2_SSH_KEY" | tail -n1)"
             - echo "=== FIN DEBUG ==="
 
-            # Preparamos SSH
+            # Configurar SSH
             - mkdir -p ~/.ssh
             - chmod 700 ~/.ssh
-
-            # Escribimos la clave privada desde la variable EC2_SSH_KEY
             - echo "$EC2_SSH_KEY" > ~/.ssh/ec2_bitbucket
             - chmod 600 ~/.ssh/ec2_bitbucket
 
+            # Verificación del archivo
             - echo "=== VERIFICACIÓN ARCHIVO ==="
             - cat ~/.ssh/ec2_bitbucket
             - echo "=== FIN ARCHIVO ==="
 
+            # Añadir host a known_hosts
             - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
 
-            # Conectamos al EC2 y hacemos deploy
+            # Intentar conexión
             - ssh -i ~/.ssh/ec2_bitbucket -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "cd /opt/odoo-law-firm && git pull && cd docker && sudo docker-compose down && sudo docker-compose up -d"
