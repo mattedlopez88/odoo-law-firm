@@ -1,4 +1,4 @@
-image: atlassian/ssh-agent
+image: atlassian/default-image:latest
 
 definitions:
   caches:
@@ -11,29 +11,21 @@ pipelines:
           name: Deploy to EC2
           deployment: production
           caches:
-            - apt # Keep cache, though less critical with specialized image
+            - apt
           script:
-            # Add the private SSH key to the ssh-agent.
-            # The EC2_SSH_KEY secret variable should contain your multi-line private key.
-            - echo "$EC2_SSH_KEY" | ssh-add -
+            # Instalar SSH, usando caché para acelerar
+            - apt-get update && apt-get install -y openssh-client
 
-            # Add the host key to known_hosts securely.
-            # This prevents "Are you sure you want to continue connecting (yes/no/[fingerprint])?" prompts
-            # and verifies the host identity.
+            # Configurar SSH
+            - mkdir -p ~/.ssh
+            - chmod 700 ~/.ssh
+            - echo "$EC2_SSH_KEY" > ~/.ssh/ec2_bitbucket
+            - chmod 600 ~/.ssh/ec2_bitbucket
+
+            # Añadir la clave del host de forma segura a known_hosts
             - ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
-            # Deploy using ssh-agent. No -i argument needed as the key is in the agent.
-            # The remote command is wrapped in single quotes for execution on the EC2 instance.
-            # set -e: Exit immediately if any command fails.
-            # || { echo '...'; exit 1; }: Provides specific error messages and exits on failure.
-            - ssh ubuntu@"$EC2_HOST" "set -e; \
-                                      echo 'Starting deployment...'; \
-                                      cd /opt/odoo-law-firm || { echo 'Error: /opt/odoo-law-firm not found.'; exit 1; }; \
-                                      echo 'Pulling latest changes from Git...'; \
-                                      git pull || { echo 'Error: Git pull failed.'; exit 1; }; \
-                                      cd docker || { echo 'Error: /opt/odoo-law-firm/docker not found.'; exit 1; }; \
-                                      echo 'Bringing down existing Docker services...'; \
-                                      sudo docker-compose down || { echo 'Error: Docker Compose down failed.'; exit 1; }; \
-                                      echo 'Bringing up Docker services...'; \
-                                      sudo docker-compose up -d || { echo 'Error: Docker Compose up failed.'; exit 1; }; \
-                                      echo 'Deployment successful!'"
+            # Deploy (sin StrictHostKeyChecking=no para mayor seguridad)
+            - ssh -i ~/.ssh/ec2_bitbucket \
+                ubuntu@"$EC2_HOST" \
+                "cd /opt/odoo-law-firm && git pull && cd docker && sudo docker-compose down && sudo docker-compose up -d"
