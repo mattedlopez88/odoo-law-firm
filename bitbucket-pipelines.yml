@@ -18,6 +18,9 @@ pipelines:
             # Configurar SSH
             - mkdir -p ~/.ssh
             - chmod 700 ~/.ssh
+            - pwd
+            - ls -lah
+            - ls -lah ~/.ssh
 
             - echo "$EC2_SSH_KEY" | tr -d '\r' > ~/.ssh/bitbucket
             - chmod 600 ~/.ssh/bitbucket
