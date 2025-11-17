@@ -14,6 +14,6 @@ pipelines:
             - apt
           script:
             - export SSH_ASKPASS=
-              - rm -f ~/.ssh/known_hosts
-              - ssh-keyscan -H "$EC2_HOST" > ~/.ssh/known_hosts
-              - ssh -o BatchMode=yes -o StrictHostKeyChecking=no ubuntu@"$EC2_HOST" "cd /opt/odoo-law-firm && git pull && cd docker && sudo docker-compose down && sudo docker-compose up -d"
+            - rm -f ~/.ssh/known_hosts
+            - ssh-keyscan -H "$EC2_HOST" > ~/.ssh/known_hosts
+            - ssh -o BatchMode=yes -o StrictHostKeyChecking=no ubuntu@"$EC2_HOST" "cd /opt/odoo-law-firm && git pull && cd docker && sudo docker-compose down && sudo docker-compose up -d"
