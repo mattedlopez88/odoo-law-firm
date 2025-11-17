@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem name="Gestión de firma" id="menu_root_law_case" web_icon="law_firm_manifest,static/description/icon.png">
+        <menuitem id="menu_case_management" name="Gestión de Casos">
+            <menuitem id="menu_cases" name="Casos" action="law_firm_manifest.action_law_case"/>
+        </menuitem>
+        <menuitem id="menu_employee_management" name="Personas">
+            <menuitem id="menu_personas" name="Abogados" action="law_firm_manifest.action_law_partner"/>
+        </menuitem>
+    </menuitem>
+
+<!--        <menuitem id="menu_property_ads_settings" name="Settings">-->
+<!--            <menuitem id="menu_property_type" name="Property Type" action="real_estate_ads.action_property_type"/>-->
+<!--            <menuitem id="menu_property_tag" name="Property Tag" action="real_estate_ads.action_property_tag"/>-->
+<!--        </menuitem>-->
+    <!-- Menú raíz de la firma -->
+<!--    <menuitem id="menu_law_root" name="Firma de Abogados" sequence="10">-->
+<!--        <menuitem id="menu_law_management" name="Casos">-->
+<!--            <menuitem id="menu_cases" name="Casos" action="law_firm_manifest.action_law_case"/>-->
+
+<!--        </menuitem>-->
+<!--    </menuitem>-->
+<!--    &lt;!&ndash; Submenú de casos &ndash;&gt;-->
+<!--    <menuitem-->
+<!--        id="menu_law_cases"-->
+<!--        name="Casos"-->
+<!--        parent="menu_law_root"-->
+<!--        sequence="10"-->
+<!--    />-->
+<!--    &lt;!&ndash; Menú que dispara la acción &ndash;&gt;-->
+<!--    <menuitem-->
+<!--        id="menu_law_case_action"-->
+<!--        name="Casos Legales"-->
+<!--        parent="menu_law_cases"-->
+<!--        action="action_law_case"-->
+<!--        sequence="10"-->
+<!--    />-->
+</odoo>

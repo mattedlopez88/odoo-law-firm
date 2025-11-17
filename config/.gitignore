@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# PyCharm / IDE
+.idea/
+.vscode/
+
+# Entornos virtuales
+venv/
+.env/
+
+# Docker data
+docker/odoo19_pgdata/
+*.log
+
+# Otros
+*.sqlite
