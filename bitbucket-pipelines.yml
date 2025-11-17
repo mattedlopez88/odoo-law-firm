@@ -18,7 +18,7 @@ pipelines:
             # Configurar SSH
             - mkdir -p ~/.ssh
             - chmod 700 ~/.ssh
-            - echo "$EC2_SSH_KEY" > ~/.ssh/bitbucket
+            - echo "EC2_SSH_KEY" > ~/.ssh/bitbucket
             - chmod 600 ~/.ssh/bitbucket
 
             # Añadir la clave del host de forma segura a known_hosts
