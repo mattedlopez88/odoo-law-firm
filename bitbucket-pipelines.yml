@@ -14,8 +14,8 @@ pipelines:
             - chmod 700 ~/.ssh
 
             # Escribimos la clave privada desde la variable EC2_SSH_KEY
-            - echo "$EC2_SSH_KEY" > ~/.ssh/id_ed25519
-            - chmod 600 ~/.ssh/id_ed25519
+            - echo "$EC2_SSH_KEY" > ~/.ssh/ec2_bitbucket
+            - chmod 600 ~/.ssh/ec2_bitbucket
 
             # Conectamos al EC2 y hacemos deploy
             - ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "
