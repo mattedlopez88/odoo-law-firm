@@ -17,11 +17,15 @@ pipelines:
             - echo "$EC2_SSH_KEY" > ~/.ssh/ec2_bitbucket
             - chmod 600 ~/.ssh/ec2_bitbucket
 
+            - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+
             # Conectamos al EC2 y hacemos deploy
-            - ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "
+            - |
+              ssh -i ~/.ssh/ec2_bitbucket ubuntu@$EC2_HOST << 'EOF'
+                set -e
                 cd /opt/odoo-law-firm &&
-                git pull &&
-                cd docker &&
-                sudo docker-compose down &&
+                git pull
+                cd docker
+                sudo docker-compose down
                 sudo docker-compose up -d
-              "
+              EOF
