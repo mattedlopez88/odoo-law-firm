@@ -9,6 +9,16 @@ pipelines:
           script:
             - apt-get update && apt-get install -y openssh-client
 
+            - echo "=== DEBUG COMPLETO ==="
+            - echo "EC2_HOST: $EC2_HOST"
+            - echo "=== CONTENIDO COMPLETO DE EC2_SSH_KEY ==="
+            - echo "$EC2_SSH_KEY"
+            - echo "=== FIN CONTENIDO ==="
+            - echo "Longitud: ${#EC2_SSH_KEY} caracteres"
+            - echo "Primera línea: $(echo "$EC2_SSH_KEY" | head -n1)"
+            - echo "Última línea: $(echo "$EC2_SSH_KEY" | tail -n1)"
+            - echo "=== FIN DEBUG ==="
+
             # Preparamos SSH
             - mkdir -p ~/.ssh
             - chmod 700 ~/.ssh
@@ -17,10 +27,9 @@ pipelines:
             - echo "$EC2_SSH_KEY" > ~/.ssh/ec2_bitbucket
             - chmod 600 ~/.ssh/ec2_bitbucket
 
-            - echo "=== DEBUG VARIABLE EC2_SSH_KEY ==="
-            - echo "Primeros 200 caracteres:"
-            - echo "${EC2_SSH_KEY:0:200}"
-            - echo "=== FIN DEBUG VARIABLE ==="
+            - echo "=== VERIFICACIÓN ARCHIVO ==="
+            - cat ~/.ssh/ec2_bitbucket
+            - echo "=== FIN ARCHIVO ==="
 
             - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
 
