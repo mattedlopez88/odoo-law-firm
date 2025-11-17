@@ -13,7 +13,6 @@ pipelines:
           caches:
             - apt
           script:
-            # Instalar SSH, usando caché para acelerar
             - apt-get update && apt-get install -y openssh-client
 
             # Configurar SSH
