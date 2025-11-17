@@ -16,11 +16,11 @@ pipelines:
             # Escribimos la clave privada desde la variable EC2_SSH_KEY
             - echo "$EC2_SSH_KEY" > ~/.ssh/ec2_bitbucket
             - chmod 600 ~/.ssh/ec2_bitbucket
-            -
-            - echo "=== VERIFICACIÓN CLAVE ==="
-            - ls -la ~/.ssh/ec2_bitbucket
-            - head -n 2 ~/.ssh/ec2_bitbucket
-            - echo "=== FIN VERIFICACIÓN ==="
+
+            - echo "=== DEBUG VARIABLE EC2_SSH_KEY ==="
+            - echo "Primeros 200 caracteres:"
+            - echo "${EC2_SSH_KEY:0:200}"
+            - echo "=== FIN DEBUG VARIABLE ==="
 
             - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
 
