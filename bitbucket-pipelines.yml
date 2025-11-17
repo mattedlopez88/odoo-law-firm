@@ -1,18 +1,24 @@
 image: atlassian/default-image:3
 
+definitions:
+  caches:
+    apt: /var/cache/apt
+
 pipelines:
   branches:
     main:
       - step:
           name: Deploy to EC2
           deployment: production
+          caches:
+            - apt
           script:
-            # Instalar SSH
+            # Instalar SSH, usando caché para acelerar
             - apt-get update && apt-get install -y openssh-client
 
-            # Debug básico
-            - echo "Longitud clave SSH: ${#EC2_SSH_KEY}"
-            - echo "Primeros chars: ${EC2_SSH_KEY:0:50}"
+            # Debug básico (con sintaxis compatible con sh)
+            - echo "Longitud clave SSH: $(echo -n "$EC2_SSH_KEY" | wc -c)"
+            - echo "Primeros 50 chars de la clave: $(echo "$EC2_SSH_KEY" | cut -c1-50)"
 
             # Configurar SSH
             - mkdir -p ~/.ssh
@@ -20,11 +26,10 @@ pipelines:
             - echo "$EC2_SSH_KEY" > ~/.ssh/ec2_bitbucket
             - chmod 600 ~/.ssh/ec2_bitbucket
 
-            # Known hosts
+            # Añadir la clave del host de forma segura a known_hosts
             - ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
-            # Deploy
+            # Deploy (sin StrictHostKeyChecking=no para mayor seguridad)
             - ssh -i ~/.ssh/ec2_bitbucket \
-                -o StrictHostKeyChecking=no \
                 ubuntu@"$EC2_HOST" \
                 "cd /opt/odoo-law-firm && git pull && cd docker && sudo docker-compose down && sudo docker-compose up -d"
