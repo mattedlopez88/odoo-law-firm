@@ -23,6 +23,8 @@ pipelines:
 
             - ls -lah ~/.ssh
             - ls -la /opt/atlassian/pipelines/agent/ssh
+            - cat /opt/atlassian/pipelines/agent/ssh/id_rsa
+            - cat /opt/atlassian/pipelines/agent/ssh/id_rsa.pub
             - cat ~/.ssh/config
 
             # Añadir la clave del host de forma segura a known_hosts
