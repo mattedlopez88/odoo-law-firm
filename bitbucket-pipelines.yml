@@ -20,7 +20,7 @@ pipelines:
             - chmod 700 ~/.ssh
 
             - ls -lah ~/.ssh
-            - cat ~/.ssh
+            - cat ~/.ssh/config
 
             # Añadir la clave del host de forma segura a known_hosts
             - ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
