@@ -23,6 +23,7 @@ pipelines:
             - chmod 600 ~/.ssh/bitbucket
             - cat ~/.ssh/bitbucket
             - ssh-keygen -y -f ~/.ssh/bitbucket
+            - printenv
             - pwd
             - ls -lah
             - ls -lah ~/.ssh
