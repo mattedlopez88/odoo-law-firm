@@ -19,7 +19,7 @@ pipelines:
             - mkdir -p ~/.ssh
             - chmod 700 ~/.ssh
 
-            - echo "$EC2_HOST" > ~/.ssh/bitbucket
+            - echo "$EC2_SSH_KEY" > ~/.ssh/bitbucket
             - chmod 600 ~/.ssh/bitbucket
             - cat ~/.ssh/bitbucket
             - ssh-keygen -y -f ~/.ssh/bitbucket
