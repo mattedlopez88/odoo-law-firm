@@ -16,10 +16,6 @@ pipelines:
             # Instalar SSH, usando caché para acelerar
             - apt-get update && apt-get install -y openssh-client
 
-            # Debug básico (con sintaxis compatible con sh)
-            - echo "Longitud clave SSH: $(echo -n "$EC2_SSH_KEY" | wc -c)"
-            - echo "Primeros 50 chars de la clave: $(echo "$EC2_SSH_KEY" | cut -c1-50)"
-
             # Configurar SSH
             - mkdir -p ~/.ssh
             - chmod 700 ~/.ssh
