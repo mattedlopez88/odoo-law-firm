@@ -1,0 +1,14 @@
+version: 0.0
+os: linux
+files:
+  - source: .
+    destination: /opt/odoo-law-firm
+hooks:
+  AfterInstall:
+    - location: scripts/after_install.sh
+      timeout: 300
+    - location: scripts/fix_permissions.sh
+      timeout: 300
+  ApplicationStart:
+    - location: scripts/start_application.sh
+      timeout: 300
