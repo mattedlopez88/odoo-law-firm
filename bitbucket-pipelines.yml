@@ -6,31 +6,42 @@ definitions:
 pipelines:
   branches:
     main:
-      - step:
-          name: Inicialize SSH
-          deployment: production
-          script:
-            - apt-get update && apt-get install -y openssh-client
-            - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            - unzip awscliv2.zip
-            - sudo ./aws/install
-            - aws --version
+      - step :
+          name: test
+          sscript:
+            - echo "=== Pipeline iniciado ==="
+            - ssh -i /opt/atlassian/pipelines/agent/ssh/id_rsa \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=10 \
+            -v \
+              ubuntu@"$EC2_HOST" "echo 'SUCCESS'" 2>&1 | tail -20
 
-            - mkdir -p ~/.aws
-            - echo "[default]" > ~/.aws/config
-            - echo "aws_access_key_id = $AWS_ACCESS
-            - echo "region = us-east-1" >> ~/.aws/config
-            - echo "[default]" > ~/.aws/credentials
-            - echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
-            - echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
-            - ls ~/.aws
-            - cat ~/.aws/config
-            - ssh-keygen -y -f /opt/atlassian/pipelines/agent/ssh/id_rsa
-            - mkdir -p ~/.ssh
-            - ssh-keygen -t rsa -b 4096 -C "bitbucket-pipeline" -f ~/.ssh/pipeline_key -N "" -q
-            - cat ~/.ssh/pipeline_key.pub
-            - ls ~/.ssh
-            - echo "$ACCESS_KEY"
+#      - step:
+#          name: Inicialize SSH
+#          deployment: production
+#          script:
+#            - apt-get update && apt-get install -y openssh-client
+#            - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+#            - unzip awscliv2.zip
+#            - sudo ./aws/install
+#            - aws --version
+#
+#            - mkdir -p ~/.aws
+#            - echo "[default]" > ~/.aws/config
+#            - echo "aws_access_key_id = $AWS_ACCESS
+#            - echo "region = us-east-1" >> ~/.aws/config
+#            - echo "[default]" > ~/.aws/credentials
+#            - echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+#            - echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+#            - ls ~/.aws
+#            - cat ~/.aws/config
+#            - ssh-keygen -y -f /opt/atlassian/pipelines/agent/ssh/id_rsa
+#            - mkdir -p ~/.ssh
+#            - ssh-keygen -t rsa -b 4096 -C "bitbucket-pipeline" -f ~/.ssh/pipeline_key -N "" -q
+#            - cat ~/.ssh/pipeline_key.pub
+#            - ls ~/.ssh
+#            - echo "$ACCESS_KEY"
       - step:
           name: Connect to EC2
           script:
