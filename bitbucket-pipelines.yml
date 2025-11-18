@@ -15,7 +15,7 @@ pipelines:
             - unzip awscliv2.zip
             - sudo ./aws/install
             - aws --version
-            - pip3 install awscli
+
             - mkdir -p ~/.aws
             - echo "[default]" > ~/.aws/config
             - echo "aws_access_key_id = $AWS_ACCESS
