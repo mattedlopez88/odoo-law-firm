@@ -7,7 +7,7 @@ pipelines:
   branches:
     main:
       - step :
-          name: test
+          name: Test SSH Connection
           sscript:
             - echo "=== Pipeline iniciado ==="
             - ssh -v ubuntu@"$EC2_HOST" "echo 'SUCCESS'" 2>&1 | tail -20
