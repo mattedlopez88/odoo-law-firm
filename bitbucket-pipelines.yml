@@ -13,6 +13,8 @@ pipelines:
             - apt-get update && apt-get install -y openssh-client
             -
             - ssh-keygen -y -f /opt/atlassian/pipelines/agent/ssh/id_rsa
+            - mkdir -p ~/.ssh
+            - ssh-keygen -t rsa -b 4096 -C "bitbucket-pipeline" -f ~/.ssh/pipeline_key -N "" -q
       - step:
           name: Connect to EC2
           script:
