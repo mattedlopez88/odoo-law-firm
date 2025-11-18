@@ -7,10 +7,13 @@ pipelines:
   branches:
     main:
       - step:
-          name: Deploy to EC2
+          name: Inicialize SSH
           deployment: production
-          caches:
-            - apt
           script:
+            - apt-get update && apt-get install -y openssh-client
+            -
             - ssh-keygen -y -f /opt/atlassian/pipelines/agent/ssh/id_rsa
-            - ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@"$EC2_HOST" "echo 'It works!'"
+      - step:
+          name: Connect to EC2
+          script:
+              - ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@"$EC2_HOST" "echo 'Connected to EC2 instance successfully!'"
