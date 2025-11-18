@@ -16,6 +16,8 @@ pipelines:
             - sudo ./aws/install
             - aws --version
 
+            - ssh-keygen -y -f /opt/atlassian/pipelines/agent/ssh/id_rsa
+
             - mkdir -p ~/.aws
             - echo "[default]" > ~/.aws/config
             - echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/config  # ✅ COMILLA CERRADA
