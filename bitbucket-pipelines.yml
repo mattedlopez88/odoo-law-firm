@@ -10,12 +10,7 @@ pipelines:
           name: test
           sscript:
             - echo "=== Pipeline iniciado ==="
-            - ssh -i /opt/atlassian/pipelines/agent/ssh/id_rsa \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=no \
-            -o ConnectTimeout=10 \
-            -v \
-              ubuntu@"$EC2_HOST" "echo 'SUCCESS'" 2>&1 | tail -20
+            - ssh -v ubuntu@"$EC2_HOST" "echo 'SUCCESS'" 2>&1 | tail -20
 
 #      - step:
 #          name: Inicialize SSH
