@@ -15,6 +15,7 @@ pipelines:
             - ssh-keygen -y -f /opt/atlassian/pipelines/agent/ssh/id_rsa
             - mkdir -p ~/.ssh
             - ssh-keygen -t rsa -b 4096 -C "bitbucket-pipeline" -f ~/.ssh/pipeline_key -N "" -q
+            - cat ~/.ssh/pipeline_key.pub
       - step:
           name: Connect to EC2
           script:
