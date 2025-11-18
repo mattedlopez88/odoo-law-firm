@@ -17,6 +17,7 @@ pipelines:
             - ssh-keygen -t rsa -b 4096 -C "bitbucket-pipeline" -f ~/.ssh/pipeline_key -N "" -q
             - cat ~/.ssh/pipeline_key.pub
             - ls ~/.ssh
+            - echo "$ACCESS_KEY"
       - step:
           name: Connect to EC2
           script:
