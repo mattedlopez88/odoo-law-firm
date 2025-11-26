@@ -4,7 +4,6 @@ services:
   db:
     image: postgres:15
     container_name: odoo19_db
-    restart: always
     environment:
       POSTGRES_USER: odoo
       POSTGRES_PASSWORD: odoo
@@ -12,7 +11,9 @@ services:
     ports:
       - "5432:5432"
 #    volumes:
-#      - odoo19_pgdata:/var/lib/postgresql/data
+#      - db_data:/var/lib/postgresql/data
+    restart: always
+
 
   odoo:
     image: odoo:19
@@ -27,13 +28,17 @@ services:
       PASSWORD: odoo
       ADMIN_PASSWORD: Lorenaluiz1
     volumes:
+      - odoo-data:/var/lib/odoo
       - ../custom-addons:/mnt/extra-addons
 #      - ../config/:/etc/odoo
 #      - ../config/odoo.conf:/etc/odoo/odoo.conf
     command: >
       odoo
-      --addons-path=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
+      --addons-path=/mnt/extra-addons
+      -u law_firm_management
+      --dev=all
     restart: always
 
-#volumes:
-#  odoo19_pgdata:
+volumes:
+#  db_data:
+  odoo-data:

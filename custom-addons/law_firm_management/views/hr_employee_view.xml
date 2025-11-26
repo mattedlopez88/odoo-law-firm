@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend employee form with Lawyer info -->
+    <record id="view_hr_employee_form_law_firm" model="ir.ui.view">
+        <field name="name">hr.employee.form.law.firm</field>
+        <field name="model">hr.employee</field>
+        <!-- Adjust inherit_id if your Odoo uses a different one -->
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <group>
+                <group string="Lawyer Info">
+                    <field name="is_lawyer"/>
+                    <field name="lawyer_title" />
+<!--                           attrs="{'invisible': [('is_lawyer', '=', False)]}"/>-->
+                    <field name="practice_area"/>
+                    <button name="action_view_law_cases"
+                            string="View Cases"
+                            type="object"
+                            class="oe_highlight"/>
+<!--                            attrs="{'invisible': [('is_lawyer', '=', False)]}"/>-->
+                </group>
+            </group>
+        </field>
+    </record>
+
+    <!-- Action to list only lawyers (employees with is_lawyer = True) -->
+    <record id="action_law_lawyers" model="ir.actions.act_window">
+        <field name="name">Lawyers</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_lawyer', '=', True)]</field>
+        <field name="context">{'default_is_lawyer': True}</field>
+    </record>
+
+</odoo>

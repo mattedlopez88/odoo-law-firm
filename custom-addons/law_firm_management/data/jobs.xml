@@ -13,7 +13,7 @@
             <field name="name">Secretaria</field>
         </record>
         <record id="job_law_manager" model="hr.job">
-            <field name="name">Abogado Gerente</field>
+            <field name="name">Gerente</field>
         </record>
         <record id="job_law_admin" model="hr.job">
             <field name="name">Administrador de la Firma</field>

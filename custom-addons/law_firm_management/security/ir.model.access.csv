@@ -4,3 +4,5 @@ access_law_case_manager,law_case_manager,model_law_case,group_law_manager,1,1,1,
 access_law_case_lawyer,law_case_lawyer,model_law_case,group_law_lawyer,1,1,1,0
 access_law_case_paralegal,law_case_paralegal,model_law_case,group_law_paralegal,1,1,0,0
 access_law_case,access_law_case,model_law_case,base.group_user,1,1,1,1
+access_law_case_user,access_law_case_user,model_law_case,base.group_user,1,1,1,0
+access_law_case_stage,access_law_case_stage,model_law_case_stage,base.group_user,1,1,1,1

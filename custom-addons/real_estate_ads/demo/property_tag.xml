@@ -1,0 +1,16 @@
+<odoo>
+    <data>
+        <record id="property_tag_cozy" model="estate.property.tag">
+            <field name="name">Cozy</field>
+<!--            <field name="sequence">1</field>-->
+        </record>
+        <record id="property_tag_abandoned" model="estate.property.tag">
+            <field name="name">Abandoned</field>
+<!--            <field name="sequence">2</field>-->
+        </record>
+        <record id="property_tag_new" model="estate.property.tag">
+            <field name="name">New</field>
+<!--            <field name="sequence">3</field>-->
+        </record>
+    </data>
+</odoo>

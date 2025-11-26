@@ -1,0 +1,8 @@
+<odoo>
+    <record id="seq_law_case" model="ir.sequence">
+        <field name="name">Law Case</field>
+        <field name="code">law.case</field>
+        <field name="prefix">CASE%(y)s/</field>
+        <field name="padding">4</field>
+    </record>
+</odoo>
