@@ -8,6 +8,7 @@
 
         <menuitem id="menu_law_cases_root" name="Casos">
             <menuitem id="menu_law_cases" name="Todos los Casos" action="law_firm_management.action_law_case"/>
+            <menuitem id="menu_law_precedents" name="Precedentes" action="law_firm_management.action_law_case_precedents"/>
         </menuitem>
 
         <menuitem id="menu_law_clients_root" name="Clientes">
@@ -16,33 +17,7 @@
 
         <menuitem id="menu_law_settings_root" name="Opciones">
             <menuitem id="menu_law_case_stages" name="Fases" action="law_firm_management.action_law_case_stages"/>
+            <menuitem id="menu_law_practice_areas" name="Areas Legales" action="law_firm_management.action_law_practice_area"/>
         </menuitem>
     </menuitem>
-
-<!--        <menuitem id="menu_property_ads_settings" name="Settings">-->
-<!--            <menuitem id="menu_property_type" name="Property Type" action="real_estate_ads.action_property_type"/>-->
-<!--            <menuitem id="menu_property_tag" name="Property Tag" action="real_estate_ads.action_property_tag"/>-->
-<!--        </menuitem>-->
-    <!-- Menú raíz de la firma -->
-<!--    <menuitem id="menu_law_root" name="Firma de Abogados" sequence="10">-->
-<!--        <menuitem id="menu_law_management" name="Casos">-->
-<!--            <menuitem id="menu_cases" name="Casos" action="law_firm_management.action_law_case"/>-->
-
-<!--        </menuitem>-->
-<!--    </menuitem>-->
-<!--    &lt;!&ndash; Submenú de casos &ndash;&gt;-->
-<!--    <menuitem-->
-<!--        id="menu_law_cases"-->
-<!--        name="Casos"-->
-<!--        parent="menu_law_root"-->
-<!--        sequence="10"-->
-<!--    />-->
-<!--    &lt;!&ndash; Menú que dispara la acción &ndash;&gt;-->
-<!--    <menuitem-->
-<!--        id="menu_law_case_action"-->
-<!--        name="Casos Legales"-->
-<!--        parent="menu_law_cases"-->
-<!--        action="action_law_case"-->
-<!--        sequence="10"-->
-<!--    />-->
 </odoo>

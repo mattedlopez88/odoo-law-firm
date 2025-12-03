@@ -6,3 +6,8 @@ access_law_case_paralegal,law_case_paralegal,model_law_case,group_law_paralegal,
 access_law_case,access_law_case,model_law_case,base.group_user,1,1,1,1
 access_law_case_user,access_law_case_user,model_law_case,base.group_user,1,1,1,0
 access_law_case_stage,access_law_case_stage,model_law_case_stage,base.group_user,1,1,1,1
+access_law_case_precedent_manager,access_law_case_precedent_manager,model_law_case_precedent,base.group_user,1,1,1,1
+access_law_legal_topic_manager,access_law_legal_topic_manager,model_law_legal_topic,base.group_user,1,1,1,1
+access_law_area_manager,access_law_area_manager,model_law_practice_area,base.group_user,1,1,1,1
+access_law_case_evidence,access_law_case_evidence,model_law_case_evidence,base.group_user,1,1,1,1
+access_law_case_witness,access_law_case_witness,model_law_case_witness,base.group_user,1,1,1,1

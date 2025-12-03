@@ -5,33 +5,31 @@
         <field name="name">law.case.kanban</field>
         <field name="model">law.case</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="stage_id" class="o_kanban_small_column" group_create="true">
+            <kanban default_group_by="stage_id">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="client_id"/>
                 <field name="state"/>
                 <field name="stage_id"/>
                 <templates>
-                    <t t-name="card">
+                    <t t-name="card" class="flex-row">
                         <div class="o_kanban_record oe_kanban_global_click">
                             <div class="o_kanban_primary">
                                 <strong>
-                                    <t t-esc="record.code.value"/>
+                                    <t t-out="record.code.value"/>
                                 </strong>
                                 <div>
-                                    <t t-esc="record.name.value"/>
+                                    <t t-out="record.name.value"/>
                                 </div>
                             </div>
-
                             <!-- Client -->
                             <div class="o_kanban_secondary text-muted">
-                                <t t-esc="record.client_id.value"/>
+                                <t t-out="record.client_id.value"/>
                             </div>
-
                             <!-- Status -->
                             <div class="o_kanban_secondary">
                                 <span class="badge badge-info">
-                                    <t t-esc="record.state.value"/>
+                                    <t t-out="record.state.value"/>
                                 </span>
                             </div>
                         </div>
@@ -46,14 +44,24 @@
         <field name="name">law.case.list</field>
         <field name="model">law.case</field>
         <field name="arch" type="xml">
-            <list string="Cases">
+            <list string="Casos">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="client_id"/>
                 <field name="responsible_employee_id"/>
-                <field name="state"/>
+                <field name="case_strength"/>
+                <field name="estimated_success_rate" widget="progressbar"/>
+                <field name="recommended_action" widget="badge"/>
+                <field name="state" widget="badge"
+                    decoration-success="state=='open'"
+                    decoration-info="state=='draft'"
+                    decoration-warning="state=='on_hold'"
+                    decoration-muted="state=='closed'"
+                />
+                <field name="stage_id"/>
                 <field name="open_date"/>
                 <field name="close_date"/>
+                <field name="estimated_amount_claim"/>
             </list>
         </field>
     </record>
@@ -63,43 +71,54 @@
         <field name="name">law.case.form</field>
         <field name="model">law.case</field>
         <field name="arch" type="xml">
-            <form string="Case">
+            <form string="Caso">
+                <header>
+<!--                    <button name="action_calculate_success_rate" type="object" string="Calcular tasa de exito" class="btn-primary" invisible="state == 'closed'"/>-->
+                    <field name="state" widget="statusbar"/>
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_set_to_draft"
-                                type="object"
-                                string="Set to Draft"
-                                class="oe_stat_button"/>
-<!--                                attrs="{'invisible': [('state', '=', 'draft')]}"-->
-                        <button name="action_open"
-                                type="object"
-                                string="Open"
-                                class="oe_stat_button"/>
-<!--                                attrs="{'invisible': [('state', '!=', 'draft')]}"-->
-                        <button name="action_set_on_hold"
-                                type="object"
-                                string="On Hold"
-                                class="oe_stat_button"/>
-<!--                                attrs="{'invisible': [('state', '!=', 'open')]}"-->
-                        <button name="action_close"
-                                type="object"
-                                string="Close"
-                                class="oe_stat_button"/>
-<!--                                attrs="{'invisible': [('state', 'not in', ['open','on_hold'])]}"-->
+                        <button class="oe_stat_button" type="object" name="action_view_client" icon="fa-user" invisible="not client_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Cliente</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" type="action" icon="fa-gavel">
+                            <field name="estimated_success_rate" widget="percentpie" string="Tasa de Exito"/>
+                        </button>
                     </div>
 
-                    <group>
-                        <group>
+                    <div class="alert alert-warning" role="alert" invisible="not recommended_action" readonly="1">
+                        <strong>Acción Recomendada</strong>
+                        <field name="recommended_action" nolabel="1" readonly="1"/>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre del Caso"/>
+                        </h1>
+                        <h2>
                             <field name="code" readonly="1"/>
-                            <field name="name"/>
-                            <field name="state"/>
+                        </h2>
+                    </div>
+
+                    <group name="case_info" class="o_group_section">
+                        <group name="group_left">
+                            <separator string="Cliente"/>
+                            <field name="client_id"/>
+                            <field name="client_role" placeholder="Rol del Cliente"/>
+                            <separator string="Contraparte"/>
+                            <field name="counterparty_id" />
+                            <field name="counterparty_role" readonly="1"/>
                             <field name="stage_id"/>
                         </group>
-                        <group>
-                            <field name="client_id"/>
+                        <group name="group_right">
                             <field name="responsible_employee_id"/>
-                            <field name="open_date" readonly="1"/>
-                            <field name="close_date" readonly="1"/>
+                            <field name="state"/>
+                            <field name="practice_area_id"/>
+                            <field name="open_date" readonly="1" invisible="not open_date"/>
+                            <field name="close_date" readonly="1" invisible="not close_date"/>
+                            <field name="actual_duration_days" readonly="1" invisible="not close_date"/>
                         </group>
                     </group>
 
@@ -108,6 +127,95 @@
                             <group>
                                 <field name="short_description"/>
                                 <field name="facts"/>
+                            </group>
+                        </page>
+                        <page string="Evaluacion del Caso">
+                            <group string="Analisis de Fortalezas">
+                                <group>
+                                    <field name="case_strength" widget="badge"/>
+                                    <field name="case_complexity" widget="badge"/>
+                                    <field name="risk_level" widget="badge"/>
+                                    <field name="evidence_strength" widget="badge"/>
+                                </group>
+                                <group>
+                                    <field name="estimated_success_rate" widget="gauge" options="{'max_field': 100}"/>
+                                    <field name="has_favorable_precedents" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="Estimaciones Financieras">
+                                <group>
+                                    <field name="estimated_amount_claim" widget="monetary"/>
+                                    <field name="estimated_amount_recovery" widget="monetary"/>
+                                    <field name="estimated_legal_costs" widget="monetary"/>
+                                </group>
+                                <group>
+                                    <field name="estimated_duration_months"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </group>
+                            </group>
+                            <group string="Desicion y Estrategia">
+                                <group>
+                                    <field name="recommended_action"/>
+                                    <field name="acceptance_conditions" invisible="recommended_action not in ['accept_conditional', 'negotiate']"/>
+                                </group>
+                                <group>
+                                    <field name="rejection_reasons" invisible="recommended_action != 'decline'"/>
+                                </group>
+                            </group>
+                            <separator string="Notas de Estrategia"/>
+                            <field name="strategy_notes" placeholder="Notas sobre la estrategia del caso..."/>
+                        </page>
+                        <page string="Evidencias y Precedentes">
+                            <separator string="Evidencias"/>
+                            <group>
+                                <field name="evidence_ids" nolabel="1">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="case_id"/>
+                                        <field name="name"/>
+                                        <field name="evidence_type"/>
+                                        <field name="obtained_date"/>
+                                    </list>
+                                </field>
+                            </group>
+                            <separator string="Precedentes Legales"/>
+                            <field name="available_precedents">
+                                <list>
+                                    <field name="case_name"/>
+                                    <field name="reference_number"/>
+                                    <field name="favoured_party"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Testigos">
+                            <field name="witness_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="case_id" />
+<!--                                    <field name="name"/>-->
+<!--                                    <field name="partner_id" widget="many2one"/>-->
+                                    <field name="witness_type"/>
+                                    <field name="credibility" widget="badge"/>
+                                    <field name="testimony_summary"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Contraparte">
+                            <group>
+                                <field name="opposing_party_ids" widget="many2many_tags"/>
+                                <field name="counterparty_id"/>
+                                <field name="opposing_party_lawyer_ids" widget="many2many_tags"/>
+                            </group>
+                        </page>
+                        <page string="Resultados" invisible="state != 'closed'">
+                            <group string="Resultado del Caso">
+                                <group>
+                                    <field name="case_outcome"/>
+                                    <field name="actual_amount_recovered" widget="monetary"/>
+                                    <field name="settlement_amount" widget="monetary" invisible="case_outcome != 'settled'"/>
+                                </group>
+                                <group>
+                                    <field name="actual_duration_days" readonly="1"/>
+                                </group>
                             </group>
                         </page>
                     </notebook>
@@ -144,7 +252,7 @@
     <record id="action_law_case" model="ir.actions.act_window">
         <field name="name">Cases</field>
         <field name="res_model">law.case</field>
-        <field name="view_mode">kanban,list,form</field>
+        <field name="view_mode">list,form,kanban</field>
         <field name="search_view_id" ref="view_law_case_list"/>
         <field name="context">{}</field>
     </record>

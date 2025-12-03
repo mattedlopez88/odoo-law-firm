@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Demo Case 1: Labor Dispute -->
+        <record id="demo_case_labor_dispute" model="law.case">
+            <field name="name">Despido Injustificado - María González</field>
+            <field name="client_id" ref="base.res_partner_2"/>
+            <field name="responsible_employee_id" ref="base.user_admin"/>
+            <field name="state">open</field>
+            <field name="short_description">Caso de despido injustificado después de 10 años de servicio</field>
+            <field name="facts">La cliente fue despedida sin causa justificada después de reportar irregularidades en la contabilidad de la empresa. Tiene evidencia documental de sus reportes y correos electrónicos.</field>
+            <field name="case_strength">strong</field>
+            <field name="case_complexity">medium</field>
+            <field name="risk_level">low</field>
+            <field name="evidence_strength">strong</field>
+            <field name="estimated_success_rate">75</field>
+            <field name="estimated_amount_claim">50000</field>
+            <field name="estimated_amount_recovery">37500</field>
+            <field name="estimated_legal_costs">8000</field>
+            <field name="estimated_duration_months">12</field>
+            <field name="recommended_action">accept</field>
+            <field name="strategy_notes">Enfocarse en la documentación de las denuncias previas y el despido represalia.</field>
+        </record>
+
+        <!-- Demo Case 2: Contract Breach -->
+        <record id="demo_case_contract_breach" model="law.case">
+            <field name="name">Incumplimiento de Contrato - Tech Solutions SA</field>
+            <field name="client_id" ref="base.res_partner_3"/>
+            <field name="responsible_employee_id" ref="base.user_admin"/>
+            <field name="state">open</field>
+            <field name="short_description">Incumplimiento de contrato de prestación de servicios informáticos</field>
+            <field name="facts">El proveedor no cumplió con los plazos acordados en el desarrollo de software, causando pérdidas económicas al cliente. Hay penalizaciones contractuales claras.</field>
+            <field name="case_strength">very_strong</field>
+            <field name="case_complexity">low</field>
+            <field name="risk_level">very_low</field>
+            <field name="evidence_strength">very_strong</field>
+            <field name="estimated_success_rate">90</field>
+            <field name="estimated_amount_claim">150000</field>
+            <field name="estimated_amount_recovery">135000</field>
+            <field name="estimated_legal_costs">15000</field>
+            <field name="estimated_duration_months">8</field>
+            <field name="recommended_action">accept</field>
+            <field name="strategy_notes">Contrato muy claro con cláusulas de penalización. Alta probabilidad de éxito.</field>
+        </record>
+
+        <!-- Demo Case 3: Property Dispute -->
+        <record id="demo_case_property_dispute" model="law.case">
+            <field name="name">Disputa de Propiedad - Herencia Familia Rodríguez</field>
+            <field name="client_id" ref="base.res_partner_4"/>
+            <field name="responsible_employee_id" ref="base.user_admin"/>
+            <field name="state">draft</field>
+            <field name="short_description">Disputa entre hermanos sobre división de herencia inmobiliaria</field>
+            <field name="facts">Tres hermanos no logran acuerdo sobre cómo dividir dos propiedades heredadas. El testamento es ambiguo en algunos puntos.</field>
+            <field name="case_strength">medium</field>
+            <field name="case_complexity">high</field>
+            <field name="risk_level">medium</field>
+            <field name="evidence_strength">medium</field>
+            <field name="estimated_success_rate">55</field>
+            <field name="estimated_amount_claim">300000</field>
+            <field name="estimated_amount_recovery">100000</field>
+            <field name="estimated_legal_costs">25000</field>
+            <field name="estimated_duration_months">18</field>
+            <field name="recommended_action">negotiate</field>
+            <field name="acceptance_conditions">Solo proceder si se logra acuerdo de mediación previa entre las partes</field>
+            <field name="strategy_notes">Recomendar mediación antes de litigio. Costos legales pueden superar beneficios.</field>
+        </record>
+
+        <!-- Demo Case 4: Personal Injury -->
+        <record id="demo_case_personal_injury" model="law.case">
+            <field name="name">Accidente de Trabajo - Juan Pérez</field>
+            <field name="client_id" ref="base.res_partner_12"/>
+            <field name="responsible_employee_id" ref="base.user_admin"/>
+            <field name="state">on_hold</field>
+            <field name="short_description">Lesiones graves en accidente laboral por falta de medidas de seguridad</field>
+            <field name="facts">El cliente sufrió fractura múltiple al caer de un andamio sin arnés de seguridad. La empresa no proporcionó equipo de protección adecuado.</field>
+            <field name="case_strength">weak</field>
+            <field name="case_complexity">very_high</field>
+            <field name="risk_level">high</field>
+            <field name="evidence_strength">weak</field>
+            <field name="estimated_success_rate">35</field>
+            <field name="estimated_amount_claim">200000</field>
+            <field name="estimated_amount_recovery">50000</field>
+            <field name="estimated_legal_costs">30000</field>
+            <field name="estimated_duration_months">24</field>
+            <field name="recommended_action">accept_conditional</field>
+            <field name="acceptance_conditions">Requiere peritaje médico favorable y evidencia fotográfica del sitio. Honorarios por resultado.</field>
+            <field name="strategy_notes">Alto riesgo. Considerar acuerdo extrajudicial. Falta evidencia crucial.</field>
+        </record>
+
+        <!-- Demo Case 5: Closed Case -->
+        <record id="demo_case_closed_success" model="law.case">
+            <field name="name">Recuperación de Deuda - Comercial ABC</field>
+            <field name="client_id" ref="base.res_partner_1"/>
+            <field name="responsible_employee_id" ref="base.user_admin"/>
+            <field name="state">closed</field>
+            <field name="short_description">Recuperación de deuda comercial por servicios prestados</field>
+            <field name="facts">Cliente prestó servicios por 80,000 que no fueron pagados. Facturas y contratos en orden.</field>
+            <field name="case_strength">very_strong</field>
+            <field name="case_complexity">low</field>
+            <field name="risk_level">very_low</field>
+            <field name="evidence_strength">very_strong</field>
+            <field name="estimated_success_rate">95</field>
+            <field name="estimated_amount_claim">80000</field>
+            <field name="estimated_amount_recovery">76000</field>
+            <field name="estimated_legal_costs">5000</field>
+            <field name="estimated_duration_months">6</field>
+            <field name="recommended_action">accept</field>
+            <field name="case_outcome">won</field>
+            <field name="actual_amount_recovered">78000</field>
+            <field name="actual_duration_days">150</field>
+            <field name="strategy_notes">Caso ganado mediante sentencia judicial favorable.</field>
+        </record>
+
+        <!-- Demo Case 6: Declined Case -->
+        <record id="demo_case_declined" model="law.case">
+            <field name="name">Demanda Frívola - Vecino Ruidoso</field>
+            <field name="client_id" ref="base.res_partner_10"/>
+            <field name="responsible_employee_id" ref="base.user_admin"/>
+            <field name="state">draft</field>
+            <field name="short_description">Demanda por supuesto daño emocional por ruido de vecino</field>
+            <field name="facts">Cliente quiere demandar a vecino por hacer ruido ocasional los fines de semana. Sin evidencia de violaciones consistentes a ordenanzas.</field>
+            <field name="case_strength">very_weak</field>
+            <field name="case_complexity">low</field>
+            <field name="risk_level">very_high</field>
+            <field name="evidence_strength">very_weak</field>
+            <field name="estimated_success_rate">5</field>
+            <field name="estimated_amount_claim">10000</field>
+            <field name="estimated_amount_recovery">0</field>
+            <field name="estimated_legal_costs">8000</field>
+            <field name="estimated_duration_months">12</field>
+            <field name="recommended_action">decline</field>
+            <field name="rejection_reasons">Falta de fundamento legal sólido. Costos superan beneficios potenciales. Riesgo de demanda maliciosa.</field>
+            <field name="strategy_notes">Caso rechazado. Recomendado al cliente buscar mediación comunitaria.</field>
+        </record>
+
+    </data>
+</odoo>

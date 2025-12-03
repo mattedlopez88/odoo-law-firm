@@ -5,22 +5,30 @@
     <record id="view_hr_employee_form_law_firm" model="ir.ui.view">
         <field name="name">hr.employee.form.law.firm</field>
         <field name="model">hr.employee</field>
-        <!-- Adjust inherit_id if your Odoo uses a different one -->
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <group>
-                <group string="Lawyer Info">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_law_cases" class="oe_stat_button" icon="fa-gavel" type="object">
+                    <div class="o_stat_info">
+                        Casos
+                        <span class="o_stat_value">
+                            <field name="case_count"/>
+                        </span>
+                    </div>
+                </button>
+
+            </xpath>
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <group string="Información del Abogado">
                     <field name="is_lawyer"/>
-                    <field name="lawyer_title" />
-<!--                           attrs="{'invisible': [('is_lawyer', '=', False)]}"/>-->
-                    <field name="practice_area"/>
+                    <field name="lawyer_title" invisible="not is_lawyer" />
+                    <field name="expert_practice_area_ids" widget="many2many_tags"/>
+                    <field name="years_of_experience"/>
                     <button name="action_view_law_cases"
-                            string="View Cases"
-                            type="object"
-                            class="oe_highlight"/>
-<!--                            attrs="{'invisible': [('is_lawyer', '=', False)]}"/>-->
+                        string="View Cases" type="object"
+                        class="oe_highlight" invisible="not is_lawyer"/>
                 </group>
-            </group>
+            </xpath>
         </field>
     </record>
 

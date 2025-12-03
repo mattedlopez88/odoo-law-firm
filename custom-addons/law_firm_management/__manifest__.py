@@ -13,9 +13,12 @@
         'data/jobs.xml',
         'data/departments.xml',
         'data/law_case_sequence.xml',
-
+        'data/law_practice_area_data.xml',
+        # 'data/law_case_data.xml',
 
         'views/res_partner_view.xml',
+        'views/law_practice_area_views.xml',
+        'views/law_case_precedent_views.xml',
         'views/law_case_stage_view.xml',
         'views/law_case_view.xml',
         'views/hr_employee_view.xml',

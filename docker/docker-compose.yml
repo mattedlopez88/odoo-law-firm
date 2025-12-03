@@ -10,10 +10,9 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
-#    volumes:
-#      - db_data:/var/lib/postgresql/data
+    volumes:
+      - db_data:/var/lib/postgresql/data
     restart: always
-
 
   odoo:
     image: odoo:19
@@ -36,9 +35,10 @@ services:
       odoo
       --addons-path=/mnt/extra-addons
       -u law_firm_management
+      -d matias-test
       --dev=all
     restart: always
 
 volumes:
-#  db_data:
+  db_data:
   odoo-data:
