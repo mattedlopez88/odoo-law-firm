@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="rule_law_case_manager_all" model="ir.rule">
+            <field name="name">Law cases: manager sees all</field>
+            <field name="model_id" ref="model_law_case"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[(4, ref('law_firm_management.group_law_manager'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_law_case_user_own_or_team" model="ir.rule">
+            <field name="name">Law cases: user sees own/team</field>
+            <field name="model_id" ref="model_law_case"/>
+            <field name="domain_force">['|',('responsible_user_id','=',user.id),('team_user_ids','in',user.id)]</field>
+            <field name="groups" eval="[(4, ref('law_firm_management.group_law_user'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+    </data>
+</odoo>

@@ -1,4 +1,5 @@
 from odoo import api, models, fields
+from ..repositories.case_repository import CaseRepository
 
 class HREmployee(models.Model):
     _inherit = 'hr.employee'
@@ -21,10 +22,13 @@ class HREmployee(models.Model):
 
     @api.depends()
     def _compute_case_count(self):
+        case_repo = CaseRepository(self.env)
+
         for employee in self:
-            employee.case_count = self.env['law.case'].search_count([
+            # Use repository to count active cases for this lawyer
+            employee.case_count = case_repo.count([
                 ('responsible_employee_id', '=', employee.id),
-                ('state', 'in', ['draft', 'open', 'in_progress'])
+                ('state', 'in', ['draft', 'open', 'on_hold'])
             ])
 
     def action_view_law_cases(self):

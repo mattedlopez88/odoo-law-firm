@@ -1,5 +1,9 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+from ..services.case_success_rate_service import CaseSuccessRateService
+from ..services.case_validation_service import CaseValidationService
+from ..services.precedent_analysis_service import PrecedentAnalysisService
+from ..services.case_state_service import CaseStateMachine
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -53,12 +57,33 @@ class LawCase(models.Model):
         'hr.employee',
         string="Abogado Responsable", domain=[('is_lawyer', '=', True)], tracking=True)
 
+    responsible_user_id = fields.Many2one(
+        'res.users',
+        string='Usuario responsable',
+        related='responsible_employee_id.user_id',
+        store=True, tracking=True, index=True,
+    )
+
+    team_user_ids = fields.Many2many(
+        'res.users',
+        string='Usuarios del Equipo',
+        compute='_compute_team_user_ids',
+        store=True,
+        compute_sudo=True,
+        readonly=True,
+    )
+
+    @api.depends('lawyer_ids.user_id')
+    def _compute_team_user_ids(self):
+        for case in self:
+            case.team_user_ids = case.lawyer_ids.mapped('user_id')
+
     case_strength = fields.Selection([
         ('very_weak', 'Muy Débil'),
         ('weak', 'Débil'),
         ('moderate', 'Moderado'),
         ('strong', 'Fuerte'),
-        ('very_string', 'Muy Fuerte'),
+        ('very_strong', 'Muy Fuerte'),
     ], string="Fortaleza del Caso", tracking=True)
 
     case_complexity = fields.Selection([
@@ -73,7 +98,7 @@ class LawCase(models.Model):
     risk_level = fields.Selection([
         ('low', 'Bajo'),
         ('medium', 'Medio'),
-        ('strong', 'Alto'),
+        ('high', 'Alto'),
         ('critical', 'Crítico'),
     ], string="Nivel de Riesgo", tracking=True)
 
@@ -98,7 +123,7 @@ class LawCase(models.Model):
 
     has_favorable_precedents = fields.Boolean(string="Tiene Precedentes Favorables", compute='_compute_precedent_analysis', store=True)
     favorable_precedents_count = fields.Integer(compute='_compute_precedent_analysis', store=True)
-    unfavorable_precedents_count = fields.Integer(compute='_compute_precedent_analysis', store=True, string="Numero de precedentes favorables")
+    unfavorable_precedents_count = fields.Integer(compute='_compute_precedent_analysis', store=True, string="Numero de precedentes desfavorables")
 
     estimated_amount_claim = fields.Monetary(string="Monto Reclamado", currency_field='currency_id')
     estimated_amount_recovery = fields.Monetary(string="Recuperacion Estimada", currency_field='currency_id')
@@ -204,75 +229,128 @@ class LawCase(models.Model):
 
     # --- decorators and functions ---
 
-    @api.model
-    def create(self, vals):
-        for val in vals:
-            if not val.get('code'):
-                val['code'] = self.env['ir.sequence'].next_by_code('law.case') or '/'
-        case = super().create(vals)
-        case._update_followers()
-        return case
+    @api.model_create_multi
+    def create(self, vals_list):
+        _logger.info("Values for new case: %s", vals_list)
+
+        # Validate each case before creation
+        validation_service = CaseValidationService(self.env)
+        empty_case = self.env['law.case'].browse([])
+
+        for vals in vals_list:
+            # Run validation
+            is_valid, error_msg = validation_service.validate(empty_case, vals)
+            if not is_valid:
+                raise UserError(error_msg)
+
+            # Generate sequence code
+            if not vals.get('code'):
+                vals['code'] = self.env['ir.sequence'].next_by_code('law.case') or '/'
+
+        cases = super(LawCase, self).create(vals_list)
+
+        # for case in cases:
+        #     case._update_followers()
+
+        return cases
+
+    # --- State Management using State Machine Service ---
+    # Old _STATE_TRANSITIONS dictionary replaced with State Pattern
+
+    def _apply_state_transition(self, case, old_state, new_state, local_vals):
+        """
+        Apply state transition using State Machine Service.
+        Replaces old hardcoded dictionary approach with extensible State Pattern.
+        """
+        state_machine = CaseStateMachine(self.env)
+
+        success, error_msg, modified_vals = state_machine.transition(
+            case, old_state, new_state, local_vals
+        )
+
+        if not success:
+            raise UserError(error_msg)
+
+        # Update local_vals with any modifications made by state hooks
+        local_vals.update(modified_vals)
+
+    def get_allowed_state_transitions(self):
+        """
+        Get allowed state transitions for current case.
+        Useful for UI to show available state change buttons.
+        """
+        self.ensure_one()
+        state_machine = CaseStateMachine(self.env)
+        return state_machine.get_allowed_transitions(self.state)
+
+    # Old transition methods (_t_open, _t_on_hold, etc.) are now handled by State classes
+    # See services/case_state_service.py for implementation
+
 
     def write(self, vals):
         _logger.info(F'*****VALUES: {vals}')
         _logger.info(F'*****SELF ENV: {self.env}')
 
-        if 'state' in vals:
-            for case in self:
-                old_state = case.state
-                new_state = vals['state']
+        # Validate before writing
+        validation_service = CaseValidationService(self.env)
 
-                if new_state == 'open' and not case.responsible_employee_id:
-                    raise UserError("Asigna un abogado responsable para abrir el caso")
-                if new_state == 'closed':
-                    if old_state not in ('open', 'on_hold'):
-                        raise UserError("El caso no esta abierto.")
-                    else:
-                        vals['close_date'] = fields.Date.today()
-
-                if new_state == 'open' and not vals.get('open_date'):
-                    vals['open_date'] = fields.Date.today()
-
-                if new_state == 'draft':
-                    vals['open_date'] = False
-                    vals['close_date'] = False
-
-        if 'stage_id' in vals:
-            new_stage = self.env['law.case.stage'].browse(vals['stage_id'])
-            if new_stage.is_closed_stage:
-                vals['state'] = 'closed'
-                vals['close_date'] = fields.Date.today()
-        return super().write(vals)
-
-    def _update_followers(self):
         for case in self:
-            lawyer_users = case.lawyer_ids.mapped('user_id')
-            current_followers = case.message_partner_ids
-            lawyers_to_remove = current_followers.filtered(
-                lambda p: p.user_ids and
-                p.user_ids[0] not in lawyer_users and
-                any(emp.is_lawyer for emp in self.env['hr.employee'].search([('user_id', '=', p.user_ids[0].id)]))
-            )
-            if lawyers_to_remove:
-                case.message_unsubscribe(partner_ids=lawyers_to_remove)
-                _logger.info(F'*****LAWYERS REMOVED: {lawyers_to_remove}')
+            local_vals = dict(vals)
 
-            _logger.info(F'*****FOLLOWERS: {current_followers.name}')
+            # Run validation
+            is_valid, error_msg = validation_service.validate(case, local_vals)
+            if not is_valid:
+                raise UserError(error_msg)
 
-    @api.model
-    def search(self, args, offset=0, limit=None, order=None):
-        res = super().search(args, offset=offset, limit=limit, order=order)
+            # Handle state transitions
+            if 'state' in local_vals:
+                old_state = case.state
+                new_state = local_vals['state']
+                self._apply_state_transition(case, old_state, new_state, local_vals)
 
-        if self.env.user.has_group('law_firm_management.group_law_manager'):
-            return res
+            # Handle stage changes that affect state
+            if 'stage_id' in local_vals and local_vals['stage_id']:
+                new_stage = self.env['law.case.stage'].browse(local_vals['stage_id'])
+                if new_stage.is_closed_stage and case.state != 'closed':
+                    local_vals['state'] = 'closed'
+                    self._apply_state_transition(case, case.state, 'closed', local_vals)
 
-        employee = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
-        _logger.info(f'*****LAWYERS: {employee}')
+            super(LawCase, case).write(local_vals)
 
-        if employee and employee.is_lawyer:
-            return res.filtered(lambda c: employee in c.lawyer_ids)
+        return True
 
-        return self.env['law.case']
+    # --- OLD METHOD - Now handled by FollowerObserver ---
+    # This method is no longer needed - follower management is handled by the Observer Pattern
+    # def _update_followers(self):
+    #     for case in self:
+    #         lawyer_users = case.lawyer_ids.mapped('user_id')
+    #         current_followers = case.message_partner_ids
+    #         lawyers_to_remove = current_followers.filtered(
+    #             lambda p: p.user_ids and
+    #             p.user_ids[0] not in lawyer_users and
+    #             any(emp.is_lawyer for emp in self.env['hr.employee'].search([('user_id', '=', p.user_ids[0].id)]))
+    #         )
+    #         if lawyers_to_remove:
+    #             case.message_unsubscribe(partner_ids=lawyers_to_remove.ids)
+    #             _logger.info(F'*****LAWYERS REMOVED: {lawyers_to_remove}')
+    #
+    #         _logger.info(F'*****FOLLOWERS: {current_followers.name}')
+
+    # TODO: Search override mala practica
+    # @api.model
+    # def search(self, args, offset=0, limit=None, order=None):
+    #     res = super().search(args, offset=offset, limit=limit, order=order)
+    #
+    #     if self.env.user.has_group('law_firm_management.group_law_manager'):
+    #         return res
+    #
+    #     employee = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
+    #     _logger.info(f'*****LAWYERS: {employee}')
+    #
+    #     if employee and employee.is_lawyer:
+    #         return res.filtered(lambda c: employee in c.lawyer_ids)
+    #
+    #     return self.env['law.case']
 
     @api.depends('open_date', 'close_date')
     def _compute_actual_duration(self):
@@ -285,132 +363,77 @@ class LawCase(models.Model):
 
     @api.depends('practice_area_id')
     def _compute_available_precedents(self):
+        service = PrecedentAnalysisService(self.env)
+
         for case in self:
             _logger.info(f'===== Computing available precedents for case {case.name} (ID: {case.id}) =====')
             _logger.info(f'Practice Area: {case.practice_area_id.name if case.practice_area_id else "Not Set"}')
 
             if case.practice_area_id:
-                precedents = self.env['law.case.precedent'].search([
-                    ('practice_area_id', '=', case.practice_area_id.id)
-                ])
+                # Use service to find precedents - centralized logic
+                precedents = service.find_relevant_precedents(case.practice_area_id.id)
                 case.available_precedents = precedents
                 case.precedent_count = len(precedents)
+
                 _logger.info(f'Found {len(precedents)} precedents in practice area')
                 if precedents:
                     _logger.info(f'Precedent IDs: {precedents.ids}')
                     _logger.info(f'Precedent names: {[p.case_name for p in precedents]}')
             else:
-                case.available_precedents = self.env['law.case.precedent']
+                case.available_precedents = self.env['law.case.precedent'].browse([])
                 case.precedent_count = 0
                 _logger.info('No practice area set - no precedents available')
 
             _logger.info(f'===== End computing available precedents for case {case.id} =====\n')
 
-    @api.depends('precedents_ids', 'precedents_ids.favoured_party', 'client_role')
+    #TODO: adds a search but idk if _compute_available_precedents is not useful anymore
+    @api.depends('practice_area_id', 'client_role')
     def _compute_precedent_analysis(self):
+        service = PrecedentAnalysisService(self.env)
+
         for case in self:
             _logger.info(f'===== Analyzing precedents for case {case.name} (ID: {case.id}) =====')
             _logger.info(f'Client Role: {case.client_role}')
             _logger.info(f'Total available precedents: {case.precedent_count}')
 
-            if not case.client_role:
-                case.has_favorable_precedents = False
-                case.favorable_precedents_count = False
-                case.unfavorable_precedents_count = False
-                _logger.warning('No client role set - skipping precedent analysis')
-                continue
-
-            if case.precedent_count > 0:
-                favorable = case.available_precedents.filtered(lambda p: p.favoured_party == case.client_role)
-                unfavorable = case.available_precedents.filtered(lambda p: p.favoured_party != case.client_role)
-                _logger.info(f'Favorable precedents: {len(favorable)} - {[p.case_name for p in favorable]}')
-                _logger.info(f'Unfavorable precedents: {len(unfavorable)} - {[p.case_name for p in unfavorable]}')
-
-                case.has_favorable_precedents = len(favorable) > 0
-                case.favorable_precedents_count = len(favorable)
-                case.unfavorable_precedents_count = len(unfavorable)
-            else:
+            if not case.client_role or not case.practice_area_id:
                 case.has_favorable_precedents = False
                 case.favorable_precedents_count = 0
                 case.unfavorable_precedents_count = 0
-                _logger.info('No available precedents to analyze')
+                if not case.client_role:
+                    _logger.warning('No client role set - skipping precedent analysis')
+                continue
+
+            # Use service to find and analyze precedents - no duplication!
+            precedents = service.find_relevant_precedents(case.practice_area_id.id)
+            analysis = service.analyze_favorability(precedents, case.client_role)
+
+            case.has_favorable_precedents = bool(analysis['favorable'])
+            case.favorable_precedents_count = analysis['favorable_count']
+            case.unfavorable_precedents_count = analysis['unfavorable_count']
+
+            _logger.info(
+                f"Precedent analysis complete: {analysis['favorable_count']} favorable, "
+                f"{analysis['unfavorable_count']} unfavorable "
+                f"(ratio: {analysis['favorable_ratio']:.1f}%)"
+            )
 
     # action_calculate_success_rate
     @api.depends('evidence_strength',
-                 'case_strength', 'available_precedents',
-                 'responsible_employee_id', 'practice_area_id',
+                 'case_strength',
+                 'client_role',
+                 'practice_area_id',
+                 'precedent_count',
+                 'favorable_precedents_count',
+                 'responsible_employee_id',
                  'responsible_employee_id.years_of_experience',
-                 'responsible_employee_id.expert_practice_area_ids',
                  )
     def _compute_success_rate(self):
+        # Optional: pass config for ML or external service strategies
+        # config = {'model_path': '/path/to/model.pkl', 'api_key': 'xxx'}
+        service = CaseSuccessRateService(self.env)
         for case in self:
-            score = 0
-            factors = 0
-
-            if case.evidence_strength:
-                evidence_scores = {'weak': 10, 'moderate': 40, 'strong': 70,'conclusive': 90}
-                score += evidence_scores.get(case.evidence_strength, 0)
-                factors += 1
-
-            if case.case_strength:
-                strength_score = {'very_weak': 10, 'weak': 30, 'moderate': 50, 'strong': 75, 'very_strong': 95}
-                score += strength_score.get(case.case_strength, 0)
-                factors += 1
-
-            if case.available_precedents and case.client_role:
-                if case.precedent_count > 0:
-                    precedent_ratio = (case.favorable_precedents_count / case.precedent_count) * 100
-
-                    score += precedent_ratio
-                    factors += 1
-
-            avg_score = (score / factors) if factors > 0 else 0.0
-
-            lawyer_score = 50.0
-
-            if case.responsible_employee_id:
-                lawyer = case.responsible_employee_id
-                experienced_bonus = min(lawyer.years_of_experience * 2, 20)
-                lawyer_score += experienced_bonus
-
-                if case.practice_area_id:
-                    domain = [
-                        ('responsible_employee_id', '=', lawyer.id),
-                        ('practice_area_id', '=', case.practice_area_id.id),
-                        ('state', '=', 'closed'),
-                        ('case_outcome', 'in', ['won', 'lost']),
-                    ]
-                    past_cases = self.search(domain)
-                    total_past = len(past_cases)
-
-                    if total_past > 0:
-                        wins = len(past_cases.filtered(lambda p: p.case_outcome == 'won'))
-                        win_rate = (wins / total_past) * 100
-
-                        if win_rate >= 75:
-                            lawyer_score += 15
-                        elif win_rate >= 50:
-                            lawyer_score += 5
-                        elif win_rate < 30:
-                            lawyer_score -= 10
-                        else:
-                            lawyer_score -= 5
-
-
-                active_cases = self.search_count([
-                    ('responsible_employee_id', '=', lawyer.id),
-                    ('state', '=', 'open'),
-                    ('id', '!=', case.id)
-                ])
-                if active_cases > 5:
-                    lawyer_score -= 15
-
-            lawyer_score = max(0, min(100, lawyer_score))
-
-            final_rate = (avg_score * 0.7) + (lawyer_score * 0.3)
-
-            # case.estimated_success_rate = score / factors if factors > 0 else 0
-            case.estimated_success_rate = round(final_rate, 2)
+            case.estimated_success_rate = service.compute(case)
 
     def action_view_client(self):
         self.ensure_one()
@@ -419,28 +442,10 @@ class LawCase(models.Model):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Clientes',
+            'name': 'Cliente',
             'res_model': 'res.partner',
-            'view_mode': 'list,form',
-            'domain': [('id', 'in', self.client_id.id)],
+            'view_mode': 'form',
+            'res_id': self.client_id.id,
+            # 'domain': [('id', '=', self.client_id.id)],
             'target': 'current',
         }
-
-        if len(self.client_ids) == 1:
-            return {
-                'type': 'ir.actions.act_window',
-                'name': 'Cliente',
-                'res_model': 'res.partner',
-                'view_mode': 'form',
-                'res_id': self.client_id.id,
-                'target': 'current',
-            }
-        else:
-            return {
-                'type': 'ir.actions.act_window',
-                'name': 'Clientes',
-                'res_model': 'res.partner',
-                'view_mode': 'list,form',
-                'domain': [('id', 'in', self.client_ids.ids)],
-                'target': 'current',
-            }
