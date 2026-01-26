@@ -249,13 +249,9 @@ class LawCase(models.Model):
 
         cases = super(LawCase, self).create(vals_list)
 
-        # for case in cases:
-        #     case._update_followers()
 
         return cases
 
-    # --- State Management using State Machine Service ---
-    # Old _STATE_TRANSITIONS dictionary replaced with State Pattern
 
     def _apply_state_transition(self, case, old_state, new_state, local_vals):
         """
@@ -271,7 +267,6 @@ class LawCase(models.Model):
         if not success:
             raise UserError(error_msg)
 
-        # Update local_vals with any modifications made by state hooks
         local_vals.update(modified_vals)
 
     def get_allowed_state_transitions(self):
@@ -283,32 +278,24 @@ class LawCase(models.Model):
         state_machine = CaseStateMachine(self.env)
         return state_machine.get_allowed_transitions(self.state)
 
-    # Old transition methods (_t_open, _t_on_hold, etc.) are now handled by State classes
-    # See services/case_state_service.py for implementation
-
-
     def write(self, vals):
         _logger.info(F'*****VALUES: {vals}')
         _logger.info(F'*****SELF ENV: {self.env}')
 
-        # Validate before writing
         validation_service = CaseValidationService(self.env)
 
         for case in self:
             local_vals = dict(vals)
 
-            # Run validation
             is_valid, error_msg = validation_service.validate(case, local_vals)
             if not is_valid:
                 raise UserError(error_msg)
 
-            # Handle state transitions
             if 'state' in local_vals:
                 old_state = case.state
                 new_state = local_vals['state']
                 self._apply_state_transition(case, old_state, new_state, local_vals)
 
-            # Handle stage changes that affect state
             if 'stage_id' in local_vals and local_vals['stage_id']:
                 new_stage = self.env['law.case.stage'].browse(local_vals['stage_id'])
                 if new_stage.is_closed_stage and case.state != 'closed':
@@ -318,39 +305,6 @@ class LawCase(models.Model):
             super(LawCase, case).write(local_vals)
 
         return True
-
-    # --- OLD METHOD - Now handled by FollowerObserver ---
-    # This method is no longer needed - follower management is handled by the Observer Pattern
-    # def _update_followers(self):
-    #     for case in self:
-    #         lawyer_users = case.lawyer_ids.mapped('user_id')
-    #         current_followers = case.message_partner_ids
-    #         lawyers_to_remove = current_followers.filtered(
-    #             lambda p: p.user_ids and
-    #             p.user_ids[0] not in lawyer_users and
-    #             any(emp.is_lawyer for emp in self.env['hr.employee'].search([('user_id', '=', p.user_ids[0].id)]))
-    #         )
-    #         if lawyers_to_remove:
-    #             case.message_unsubscribe(partner_ids=lawyers_to_remove.ids)
-    #             _logger.info(F'*****LAWYERS REMOVED: {lawyers_to_remove}')
-    #
-    #         _logger.info(F'*****FOLLOWERS: {current_followers.name}')
-
-    # TODO: Search override mala practica
-    # @api.model
-    # def search(self, args, offset=0, limit=None, order=None):
-    #     res = super().search(args, offset=offset, limit=limit, order=order)
-    #
-    #     if self.env.user.has_group('law_firm_management.group_law_manager'):
-    #         return res
-    #
-    #     employee = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
-    #     _logger.info(f'*****LAWYERS: {employee}')
-    #
-    #     if employee and employee.is_lawyer:
-    #         return res.filtered(lambda c: employee in c.lawyer_ids)
-    #
-    #     return self.env['law.case']
 
     @api.depends('open_date', 'close_date')
     def _compute_actual_duration(self):
@@ -370,7 +324,6 @@ class LawCase(models.Model):
             _logger.info(f'Practice Area: {case.practice_area_id.name if case.practice_area_id else "Not Set"}')
 
             if case.practice_area_id:
-                # Use service to find precedents - centralized logic
                 precedents = service.find_relevant_precedents(case.practice_area_id.id)
                 case.available_precedents = precedents
                 case.precedent_count = len(precedents)
@@ -404,7 +357,6 @@ class LawCase(models.Model):
                     _logger.warning('No client role set - skipping precedent analysis')
                 continue
 
-            # Use service to find and analyze precedents - no duplication!
             precedents = service.find_relevant_precedents(case.practice_area_id.id)
             analysis = service.analyze_favorability(precedents, case.client_role)
 
