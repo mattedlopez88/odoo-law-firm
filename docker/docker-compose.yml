@@ -27,6 +27,8 @@ services:
       PASSWORD: odoo
       ADMIN_PASSWORD: Lorenaluiz1
     volumes:
+      - ./odoo-db:/var/lib/postgresql/data
+      - ./odoo-filestore:/var/lib/odoo
       - odoo-data:/var/lib/odoo
       - ../custom-addons:/mnt/extra-addons
 #      - ../config/:/etc/odoo
