@@ -9,7 +9,7 @@
 
         <record id="test_client_1" model="res.partner">
             <field name="name">María González Pérez</field>
-            <field name="is_client" eval="True"/>
+<!--            <field name="is_client" eval="True"/>-->
             <field name="email">maria.gonzalez@example.com</field>
             <field name="phone">+52-555-1234567</field>
             <field name="street">Av. Reforma 123</field>
@@ -17,9 +17,9 @@
             <field name="country_id" ref="base.mx"/>
         </record>
 
-        <record id="test_client_2" model="res.partner">
+        <record id="test_client_2" model="law.client">
             <field name="name">Constructora XYZ S.A. de C.V.</field>
-            <field name="is_client" eval="True"/>
+<!--            <field name="is_client" eval="True"/>-->
             <field name="email">legal@construcciones.com.mx</field>
             <field name="phone">+52-555-9876543</field>
             <field name="is_company" eval="True"/>

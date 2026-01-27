@@ -12,7 +12,10 @@
         </menuitem>
 
         <menuitem id="menu_law_clients_root" name="Clientes">
-            <menuitem id="menu_law_clients" name="Todos los Clientes" action="law_firm_management.action_law_clients"/>
+            <menuitem id="menu_law_clients" name="Clientes" action="law_firm_management.action_law_client"/>
+<!--            <menuitem id="menu_law_partners" name="Contactos" action="law_firm_management.action_law_clients"/>-->
+<!--            <menuitem id="menu_law_mobile_profiles" name="Perfiles Móviles" action="law_firm_management.action_law_client_profile"/>-->
+<!--            <menuitem id="menu_law_client_devices" name="Dispositivos" action="law_firm_management.action_law_client_device"/>-->
         </menuitem>
 
         <menuitem id="menu_law_settings_root" name="Opciones">

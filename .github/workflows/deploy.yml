@@ -1,0 +1,58 @@
+name: Deploy Odoo to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ----------------------------------------------------
+      # 1. SSH Setup (Equivalent to "Initialize SSH" step in Bitbucket)
+      #    - We'll use a dedicated action for SSH key setup
+      #    - AWS CLI setup might not be strictly needed just for SSH,
+      #      but if you need to run AWS commands later, you can add it.
+      # ----------------------------------------------------
+      - name: Configure SSH Private Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }} # Use GitHub Secrets for your private key
+
+      - name: Add EC2 Host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }} # Pass EC2_HOST as an environment variable
+
+      # ----------------------------------------------------
+      # 2. Connect to EC2 and Deploy (Equivalent to "Connect to EC2" step)
+      #    - This step will run your deployment commands on the EC2 instance.
+      #    - Replace `echo 'Connected!'` with your actual deployment script.
+      #    - You'll likely want to `cd` into your project directory on EC2.
+      #    - You'll probably want to `git pull` on the EC2, then `docker compose down && docker compose up -d --build`
+      # ----------------------------------------------------
+      - name: Deploy to EC2
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            echo "Successfully connected to EC2!"
+            
+            cd /path/to/your/odoo-project-on-ec2
+            
+            git pull origin main
+            
+            cd docker
+            docker compose down
+            docker compose up -d --build
+           
+            echo "Deployment complete!"
+          EOF
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}

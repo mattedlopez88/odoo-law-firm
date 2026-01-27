@@ -6,15 +6,15 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='company_name']" position="before">
-                <group>
-                    <field name="cedula"/>
-                    <field name="ruc"/>
-                </group>
+<!--                <group>-->
+<!--                    <field name="cedula"/>-->
+<!--                    <field name="ruc"/>-->
+<!--                </group>-->
             </xpath>
             <notebook>
                 <page string="Law Firm">
                     <group>
-                        <field name="is_client"/>
+<!--                        <field name="is_client"/>-->
                         <field name="is_counterparty"/>
                     </group>
                     <group>
@@ -33,7 +33,7 @@
         <field name="name">Clients</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('is_client', '=', True)]</field>
+<!--        <field name="domain">[('is_client', '=', True)]</field>-->
         <field name="context">{'default_is_client': True}</field>
     </record>
 

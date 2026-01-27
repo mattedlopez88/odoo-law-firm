@@ -9,18 +9,12 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class FollowerObserver(CaseEventObserver):
-    """
-    Observer that manages case followers when lawyers are assigned/removed.
-    Single Responsibility: Follower management only.
-    Uses LawyerRepository for data access - no direct ORM calls.
-    """
 
     def __init__(self, env):
         super().__init__(env)
         self.lawyer_repo = LawyerRepository(env)
 
     def get_priority(self):
-        """High priority - followers should be updated quickly"""
         return 10
 
     def can_handle(self, event):

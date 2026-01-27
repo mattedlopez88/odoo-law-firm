@@ -20,6 +20,7 @@
         # 'data/test_cases_data.xml',  # Mock test data for development/testing
 
         'views/res_partner_view.xml',
+        'views/law_client_views.xml',
         'views/law_practice_area_views.xml',
         'views/law_case_precedent_views.xml',
         'views/law_case_stage_view.xml',

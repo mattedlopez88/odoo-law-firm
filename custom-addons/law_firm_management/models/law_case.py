@@ -21,9 +21,9 @@ class LawCase(models.Model):
         readonly=True, copy=False, index=True, tracking=True)
 
     client_id = fields.Many2one(
-        'res.partner',
-        string="Cliente", required=True, tracking=True,
-        domain=[('is_client', '=', True)])
+        'law.client',
+        string="Cliente", required=True, tracking=True)
+        # domain=[('is_client', '=', True)])
 
     client_role = fields.Selection([
         ('plaintiff', 'Demandante'),
@@ -319,24 +319,7 @@ class LawCase(models.Model):
 
         return True
 
-    # --- OLD METHOD - Now handled by FollowerObserver ---
-    # This method is no longer needed - follower management is handled by the Observer Pattern
-    # def _update_followers(self):
-    #     for case in self:
-    #         lawyer_users = case.lawyer_ids.mapped('user_id')
-    #         current_followers = case.message_partner_ids
-    #         lawyers_to_remove = current_followers.filtered(
-    #             lambda p: p.user_ids and
-    #             p.user_ids[0] not in lawyer_users and
-    #             any(emp.is_lawyer for emp in self.env['hr.employee'].search([('user_id', '=', p.user_ids[0].id)]))
-    #         )
-    #         if lawyers_to_remove:
-    #             case.message_unsubscribe(partner_ids=lawyers_to_remove.ids)
-    #             _logger.info(F'*****LAWYERS REMOVED: {lawyers_to_remove}')
-    #
-    #         _logger.info(F'*****FOLLOWERS: {current_followers.name}')
-
-    # TODO: Search override mala practica
+    # Search override mala practica
     # @api.model
     # def search(self, args, offset=0, limit=None, order=None):
     #     res = super().search(args, offset=offset, limit=limit, order=order)
