@@ -30,7 +30,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
         env:
-          EC2_HOST: ${{ secrets.EC2_HOST }} # Pass EC2_HOST as an environment variable
+          EC2_HOST: ${{ secrets.EC2_HOST }}
 
       # ----------------------------------------------------
       # 2. Connect to EC2 and Deploy (Equivalent to "Connect to EC2" step)
@@ -41,18 +41,41 @@ jobs:
       # ----------------------------------------------------
       - name: Deploy to EC2
         run: |
-          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            echo "Successfully connected to EC2!"
+          PROJECT_PATH="/home/ubuntu/ae-odoo" 
+          REPO_URL="https://github.com/mattedlopez88/odoo-law-firm.git"
+          DOCKER_COMPOSE_CMD="docker compose" 
+          
+          echo "--- Starting EC2 Deployment Script ---"
+          echo "Target Project Path on EC2: ${PROJECT_PATH}"
+          
+          ssh ubuntu@${{ secrets.EC2_HOST }} "bash -c '
+            mkdir -p \"${PROJECT_PATH}\" || { echo \"Failed to create directory ${PROJECT_PATH}\"; exit 1; }
+            cd \"${PROJECT_PATH}\" || { echo \"Failed to change directory to ${PROJECT_PATH}\"; exit 1; }
             
-            cd /path/to/your/odoo-project-on-ec2
+            if [ -d .git ]; then
+              echo \"Git repository already exists, performing git pull...\"
+              git pull origin main || { echo \"Failed to pull latest changes\"; exit 1; }
+            else
+              echo \"Git repository does not exist, performing git clone...\"
+              git clone \"${REPO_URL}\" . || { echo \"Failed to clone repository\"; exit 1; }
+            fi
             
-            git pull origin main
+            echo \"Checking for Docker Compose command: ${DOCKER_COMPOSE_CMD}\"
+            if ! command -v \"${DOCKER_COMPOSE_CMD}\" &> /dev/null; then
+                echo \"Error: ${DOCKER_COMPOSE_CMD} is not installed or not in PATH on EC2.\"
+                echo \"Please install Docker Compose V2 (docker compose) or V1 (docker-compose) on your EC2 instance.\"
+                exit 1
+            fi
+
+            echo \"Bringing down existing Docker containers...\"
+            \"${DOCKER_COMPOSE_CMD}\" down || { echo \"Failed to bring down containers\"; exit 1; }
             
-            cd docker
-            docker compose down
-            docker compose up -d --build
-           
-            echo "Deployment complete!"
-          EOF
+            echo \"Building and bringing up new Docker containers...\"
+            \"${DOCKER_COMPOSE_CMD}\" up -d --build || { echo \"Failed to bring up containers\"; exit 1; }
+
+            echo \"--- EC2 Docker Compose Script Finished ---\"
+          '" || { echo "SSH connection or commands within EC2 failed!"; exit 1; }
+
+          echo "--- Deployment Workflow Completed ---"
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
