@@ -45,6 +45,8 @@ jobs:
               echo \"Git repository does not exist, performing git clone...\"
               git clone \"${REPO_URL}\" . || { echo \"Failed to clone repository\"; exit 1; }
             fi
+            
+            cd ae-odoo/docker
 
             docker compose down
             
