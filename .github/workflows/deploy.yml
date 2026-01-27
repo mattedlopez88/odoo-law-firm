@@ -45,16 +45,8 @@ jobs:
               echo \"Git repository does not exist, performing git clone...\"
               git clone \"${REPO_URL}\" . || { echo \"Failed to clone repository\"; exit 1; }
             fi
-            
-            echo \"Checking for Docker Compose command: docker compose\"
-            if ! command -v docker compose &> /dev/null; then
-                echo \"Error: docker compose is not installed or not in PATH on EC2.\"
-                echo \"Please install Docker Compose V2 (docker compose) or V1 (docker-compose) on your EC2 instance.\"
-                exit 1
-            fi
 
-            echo \"Bringing down existing Docker containers...\"
-            docker compose down || { echo \"Failed to bring down containers\"; exit 1; }
+            docker compose down
             
             echo \"Building and bringing up new Docker containers...\"
             docker compose up -d --build || { echo \"Failed to bring up containers\"; exit 1; }
