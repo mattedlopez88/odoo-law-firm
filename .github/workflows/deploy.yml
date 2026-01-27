@@ -30,7 +30,6 @@ jobs:
         run: |
           PROJECT_PATH="/home/ubuntu/ae-odoo" 
           REPO_URL="https://github.com/mattedlopez88/odoo-law-firm.git"
-          DOCKER_COMPOSE_CMD="docker compose" 
           
           echo "--- Starting EC2 Deployment Script ---"
           echo "Target Project Path on EC2: ${PROJECT_PATH}"
@@ -47,18 +46,18 @@ jobs:
               git clone \"${REPO_URL}\" . || { echo \"Failed to clone repository\"; exit 1; }
             fi
             
-            echo \"Checking for Docker Compose command: ${DOCKER_COMPOSE_CMD}\"
-            if ! command -v \"${DOCKER_COMPOSE_CMD}\" &> /dev/null; then
-                echo \"Error: ${DOCKER_COMPOSE_CMD} is not installed or not in PATH on EC2.\"
+            echo \"Checking for Docker Compose command: docker compose\"
+            if ! command -v docker compose &> /dev/null; then
+                echo \"Error: docker compose is not installed or not in PATH on EC2.\"
                 echo \"Please install Docker Compose V2 (docker compose) or V1 (docker-compose) on your EC2 instance.\"
                 exit 1
             fi
 
             echo \"Bringing down existing Docker containers...\"
-            \"${DOCKER_COMPOSE_CMD}\" down || { echo \"Failed to bring down containers\"; exit 1; }
+            docker compose down || { echo \"Failed to bring down containers\"; exit 1; }
             
             echo \"Building and bringing up new Docker containers...\"
-            \"${DOCKER_COMPOSE_CMD}\" up -d --build || { echo \"Failed to bring up containers\"; exit 1; }
+            docker compose up -d --build || { echo \"Failed to bring up containers\"; exit 1; }
 
             echo \"--- EC2 Docker Compose Script Finished ---\"
           '" || { echo "SSH connection or commands within EC2 failed!"; exit 1; }
