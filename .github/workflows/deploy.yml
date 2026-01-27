@@ -46,7 +46,7 @@ jobs:
               git clone \"${REPO_URL}\" . || { echo \"Failed to clone repository\"; exit 1; }
             fi
             
-            cd ae-odoo/docker
+            cd /home/ubuntu/ae-odoo/docker
 
             docker compose down
             
