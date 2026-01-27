@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem id="menu_law_root" name="Gestion de firma" web_icon="law_firm_management,static/description/icon.png">
+
+        <menuitem id="menu_law_employees" name="Equipo Legal">
+            <menuitem id="menu_lawyers" name="Abogados" action="law_firm_management.action_law_lawyers"/>
+        </menuitem>
+
+        <menuitem id="menu_law_cases_root" name="Casos">
+            <menuitem id="menu_law_cases" name="Todos los Casos" action="law_firm_management.action_law_case"/>
+            <menuitem id="menu_law_precedents" name="Precedentes" action="law_firm_management.action_law_case_precedents"/>
+        </menuitem>
+
+        <menuitem id="menu_law_clients_root" name="Clientes">
+            <menuitem id="menu_law_clients" name="Todos los Clientes" action="law_firm_management.action_law_clients"/>
+        </menuitem>
+
+        <menuitem id="menu_law_settings_root" name="Opciones">
+            <menuitem id="menu_law_case_stages" name="Fases" action="law_firm_management.action_law_case_stages"/>
+            <menuitem id="menu_law_practice_areas" name="Areas Legales" action="law_firm_management.action_law_practice_area"/>
+        </menuitem>
+    </menuitem>
+</odoo>
