@@ -13,12 +13,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ----------------------------------------------------
-      # 1. SSH Setup (Equivalent to "Initialize SSH" step in Bitbucket)
-      #    - We'll use a dedicated action for SSH key setup
-      #    - AWS CLI setup might not be strictly needed just for SSH,
-      #      but if you need to run AWS commands later, you can add it.
-      # ----------------------------------------------------
       - name: Configure SSH Private Key
         uses: webfactory/ssh-agent@v0.9.0
         with:
