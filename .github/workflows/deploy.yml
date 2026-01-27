@@ -32,13 +32,6 @@ jobs:
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
 
-      # ----------------------------------------------------
-      # 2. Connect to EC2 and Deploy (Equivalent to "Connect to EC2" step)
-      #    - This step will run your deployment commands on the EC2 instance.
-      #    - Replace `echo 'Connected!'` with your actual deployment script.
-      #    - You'll likely want to `cd` into your project directory on EC2.
-      #    - You'll probably want to `git pull` on the EC2, then `docker compose down && docker compose up -d --build`
-      # ----------------------------------------------------
       - name: Deploy to EC2
         run: |
           PROJECT_PATH="/home/ubuntu/ae-odoo" 
