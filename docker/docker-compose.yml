@@ -37,7 +37,7 @@ services:
       odoo
       --addons-path=/mnt/extra-addons
       -u all
-      -d matias-test
+      -d ae-db
       --dev=all
     restart: always
 
